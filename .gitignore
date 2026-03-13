@@ -1,1 +1,17 @@
+# OS files
 .DS_Store
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+.env
+venv/
+.venv/
+env/
+
+# Pytest
+.pytest_cache/
