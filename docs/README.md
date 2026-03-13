@@ -7,8 +7,8 @@
 * **Database:** *[TBD - SQLite hosted by EC2?]*
 
 ### Frontend
-* **Templates/UI:** *[TBD]*
-* **Styling:** *[TBD]*
+* **Templates/UI:** Jinja2
+* **Styling:** Bootstrap 5
 
 ### Testing & DevOps
 * **Testing Framework:** pytest
