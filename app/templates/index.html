@@ -1,9 +1,724 @@
-{% extends "base.html" %}
-{% block title %}Home - RecipeShare{% endblock %}
-{% block content %}
-<div class="text-center py-5">
-    <h1 class="display-4 fw-bold">Share Recipes. Build Community.</h1>
-    <p class="lead text-muted mt-3">Stop losing recipes in scattered notes and group chats. Store, organize, and improve recipes together in one centralized platform.</p>
-    <a href="/browse" class="btn btn-warning btn-lg mt-4 text-white">Get Started</a>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RecipeShare — Collaborative Recipe Sharing Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --amber:   #f59e0b;
+      --orange:  #ea580c;
+      --red:     #b91c1c;
+      --cream:   #fef9f0;
+      --dark:    #0c0701;
+      --card-bg: #170f06;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: #fff; overflow-x: hidden; }
+
+    /* ── NAV ─────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 2.5rem;
+      background: linear-gradient(to bottom, rgba(12,7,1,.9) 0%, transparent 100%);
+      backdrop-filter: blur(6px);
+    }
+    .nav-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem; font-weight: 900; color: var(--amber);
+      text-decoration: none; letter-spacing: -0.02em;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .nav-brand .spoon { font-size: 1.1rem; }
+    .nav-brand span { color: #fff; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
+    .nav-links a {
+      color: rgba(255,255,255,.7); text-decoration: none;
+      font-size: .85rem; font-weight: 500; letter-spacing: .05em;
+      text-transform: uppercase; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--amber); }
+    .nav-cta {
+      padding: .5rem 1.3rem !important;
+      background: var(--amber) !important; color: #000 !important;
+      border-radius: 999px; font-weight: 600 !important;
+      transition: background .2s, transform .15s !important;
+      text-transform: none !important; letter-spacing: 0 !important;
+    }
+    .nav-cta:hover { background: var(--orange) !important; transform: scale(1.04); color: #000 !important; }
+
+    /* ── HERO ─────────────────────────── */
+    .hero {
+      position: relative; width: 100%; height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    #hero-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      touch-action: none;
+    }
+    /* Dark vignette so text pops against the glowing embers */
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 110%, rgba(12,7,1,.85) 0%, transparent 70%),
+        radial-gradient(ellipse 80% 40% at 50% -10%,  rgba(12,7,1,.6)  0%, transparent 70%),
+        radial-gradient(ellipse 50% 80% at -10% 50%,  rgba(12,7,1,.4)  0%, transparent 70%),
+        radial-gradient(ellipse 50% 80% at 110% 50%,  rgba(12,7,1,.4)  0%, transparent 70%);
+    }
+
+    /* ── Floating food emojis ─────────── */
+    .floaties { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .floaty {
+      position: absolute; font-size: 1.6rem; opacity: 0;
+      animation: floatUp linear infinite;
+      filter: drop-shadow(0 0 6px rgba(245,158,11,.4));
+    }
+    .floaty:nth-child(1)  { left:  8%; animation-duration: 14s; animation-delay:  0s; font-size: 1.4rem; }
+    .floaty:nth-child(2)  { left: 18%; animation-duration: 17s; animation-delay:  3s; font-size: 1.8rem; }
+    .floaty:nth-child(3)  { left: 30%; animation-duration: 12s; animation-delay:  6s; font-size: 1.2rem; }
+    .floaty:nth-child(4)  { left: 44%; animation-duration: 19s; animation-delay:  1s; font-size: 2rem;   }
+    .floaty:nth-child(5)  { left: 58%; animation-duration: 15s; animation-delay:  8s; font-size: 1.3rem; }
+    .floaty:nth-child(6)  { left: 70%; animation-duration: 13s; animation-delay:  4s; font-size: 1.7rem; }
+    .floaty:nth-child(7)  { left: 82%; animation-duration: 16s; animation-delay:  2s; font-size: 1.5rem; }
+    .floaty:nth-child(8)  { left: 92%; animation-duration: 18s; animation-delay:  9s; font-size: 1.2rem; }
+    .floaty:nth-child(9)  { left: 24%; animation-duration: 20s; animation-delay: 12s; font-size: 1.9rem; }
+    .floaty:nth-child(10) { left: 76%; animation-duration: 11s; animation-delay:  5s; font-size: 1.4rem; }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(110vh) rotate(-8deg);  opacity: 0; }
+      8%   { opacity: .35; }
+      85%  { opacity: .25; }
+      100% { transform: translateY(-15vh) rotate(10deg);  opacity: 0; }
+    }
+
+    /* ── Hero text ────────────────────── */
+    .hero-content {
+      position: relative; z-index: 10;
+      text-align: center; padding: 0 1.5rem;
+      max-width: 860px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .55rem;
+      padding: .5rem 1.25rem;
+      background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3);
+      border-radius: 999px; font-size: .78rem; color: #fde68a;
+      margin-bottom: 2rem; letter-spacing: .06em; text-transform: uppercase;
+      animation: fadeDown .8s ease both;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--amber);
+      animation: pulse 1.8s ease infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: .4; transform: scale(1.4); }
+    }
+
+    .hero-h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 7.5vw, 6rem);
+      font-weight: 900; line-height: 1.0; letter-spacing: -0.03em;
+      animation: fadeUp .9s ease both .2s;
+    }
+    .hero-h1 .line1 {
+      display: block;
+      background: linear-gradient(120deg, #fef3c7 0%, #fbbf24 40%, #f97316 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-h1 .line2 {
+      display: block; font-style: italic;
+      background: linear-gradient(120deg, #fdba74 0%, #ef4444 60%, #dc2626 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .hero-sub {
+      margin: 1.6rem auto 0;
+      font-size: clamp(.95rem, 2vw, 1.2rem);
+      color: rgba(254,243,199,.75); font-weight: 300; line-height: 1.7;
+      max-width: 580px;
+      animation: fadeUp .9s ease both .4s;
+    }
+    .hero-buttons {
+      margin-top: 2.5rem; display: flex; gap: 1rem;
+      justify-content: center; flex-wrap: wrap;
+      animation: fadeUp .9s ease both .6s;
+    }
+    .btn-primary-hero {
+      padding: .85rem 2.1rem;
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: #000; border: none; border-radius: 999px;
+      font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .95rem;
+      cursor: pointer; transition: transform .2s, box-shadow .2s;
+      text-decoration: none; display: inline-flex; align-items: center; gap: .4rem;
+    }
+    .btn-primary-hero:hover {
+      transform: scale(1.06); color: #000;
+      box-shadow: 0 0 40px rgba(245,158,11,.5);
+    }
+    .btn-secondary-hero {
+      padding: .85rem 2.1rem;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(245,158,11,.28);
+      color: #fde68a; border-radius: 999px;
+      font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem;
+      cursor: pointer; transition: background .2s, transform .2s;
+      text-decoration: none; display: inline-block; backdrop-filter: blur(6px);
+    }
+    .btn-secondary-hero:hover { background: rgba(245,158,11,.15); transform: scale(1.04); color: #fff; }
+
+    /* Mini stats inside hero */
+    .hero-stats {
+      margin-top: 3rem; display: flex; gap: 2.5rem; justify-content: center; flex-wrap: wrap;
+      animation: fadeUp .9s ease both .8s;
+    }
+    .hstat { text-align: center; }
+    .hstat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; font-weight: 700; color: var(--amber);
+      line-height: 1;
+    }
+    .hstat-label { font-size: .72rem; color: rgba(255,255,255,.4); letter-spacing: .06em; text-transform: uppercase; margin-top: .2rem; }
+
+    .hero-scroll {
+      position: absolute; bottom: 2.2rem; left: 50%; transform: translateX(-50%);
+      z-index: 10; display: flex; flex-direction: column; align-items: center;
+      gap: .35rem; color: rgba(255,255,255,.35); font-size: .72rem;
+      letter-spacing: .12em; text-transform: uppercase;
+      animation: fadeUp 1s ease both 1.4s;
+    }
+    .hero-scroll i { animation: bounce 1.8s ease infinite; }
+
+    /* ── CUISINES STRIP ───────────────── */
+    .cuisine-strip {
+      background: rgba(255,255,255,.03);
+      border-top: 1px solid rgba(245,158,11,.1);
+      border-bottom: 1px solid rgba(245,158,11,.1);
+      padding: 1.6rem 0; overflow: hidden;
+    }
+    .cuisine-inner {
+      max-width: 1000px; margin: 0 auto; padding: 0 1.5rem;
+      display: flex; gap: 2.5rem; justify-content: center; flex-wrap: wrap;
+    }
+    .cuisine-pill {
+      display: flex; align-items: center; gap: .5rem;
+      color: rgba(255,255,255,.55); font-size: .85rem;
+    }
+    .cuisine-pill .emoji { font-size: 1.1rem; }
+
+    /* ── SHARED SECTION STYLES ────────── */
+    .section { padding: 5.5rem 1.5rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .72rem; font-weight: 600; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--amber); margin-bottom: .9rem;
+    }
+    .section-label::before {
+      content: ''; display: block; width: 20px; height: 2px; background: var(--amber);
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.9rem, 3.8vw, 3rem); font-weight: 700;
+      line-height: 1.1; color: var(--cream);
+    }
+    .section-title em { font-style: italic; color: var(--amber); }
+    .section-sub {
+      margin-top: .8rem; color: rgba(255,255,255,.45);
+      font-size: .9rem; line-height: 1.7; max-width: 460px;
+    }
+
+    /* ── RECIPE CARDS ─────────────────── */
+    .recipes-grid {
+      margin-top: 3rem;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.4rem;
+    }
+    .recipe-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(245,158,11,.1);
+      border-radius: 18px; padding: 1.5rem;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+      cursor: pointer; text-decoration: none; display: block; color: inherit;
+      position: relative; overflow: hidden;
+    }
+    .recipe-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at top left, rgba(245,158,11,.06) 0%, transparent 60%);
+      opacity: 0; transition: opacity .3s;
+    }
+    .recipe-card:hover { transform: translateY(-5px); border-color: rgba(245,158,11,.3); box-shadow: 0 16px 45px rgba(245,158,11,.1); }
+    .recipe-card:hover::before { opacity: 1; }
+
+    .card-emoji { font-size: 2.4rem; margin-bottom: .9rem; display: block; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .9rem; }
+    .tag {
+      font-size: .68rem; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; padding: .18rem .6rem;
+      background: rgba(245,158,11,.13); color: #fbbf24;
+      border-radius: 999px; border: 1px solid rgba(245,158,11,.2);
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem; font-weight: 700; color: var(--cream);
+      margin-bottom: .45rem; line-height: 1.25;
+    }
+    .card-desc { font-size: .85rem; color: rgba(255,255,255,.45); line-height: 1.65; }
+    .card-meta {
+      margin-top: 1.1rem; padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .78rem; color: rgba(255,255,255,.3);
+    }
+    .card-meta-left { display: flex; align-items: center; gap: .4rem; }
+    .card-meta i { color: rgba(245,158,11,.6); }
+    .card-time { display: flex; align-items: center; gap: .3rem; }
+
+    /* ── HOW IT WORKS ─────────────────── */
+    .hiw-section {
+      background: linear-gradient(180deg, var(--dark) 0%, #110900 100%);
+      padding: 5.5rem 1.5rem;
+    }
+    .steps {
+      margin-top: 3.5rem;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1px; background: rgba(245,158,11,.08);
+      border: 1px solid rgba(245,158,11,.08); border-radius: 18px; overflow: hidden;
+    }
+    .step {
+      padding: 2rem 1.5rem; background: var(--card-bg);
+      text-align: center;
+      transition: background .2s;
+    }
+    .step:hover { background: #1f1408; }
+    .step-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
+    .step-num {
+      display: inline-block; font-family: 'Playfair Display', serif;
+      font-size: .75rem; font-weight: 700; color: var(--amber);
+      letter-spacing: .1em; text-transform: uppercase;
+      margin-bottom: .6rem; opacity: .7;
+    }
+    .step h3 { font-size: .95rem; font-weight: 600; color: var(--cream); margin-bottom: .5rem; }
+    .step p { font-size: .82rem; color: rgba(255,255,255,.4); line-height: 1.65; }
+
+    /* ── TESTIMONIAL / TIP CALLOUT ─────── */
+    .tip-section { padding: 4rem 1.5rem; }
+    .tip-card {
+      max-width: 760px; margin: 0 auto;
+      background: linear-gradient(135deg, #1f1005 0%, #2a1508 100%);
+      border: 1px solid rgba(245,158,11,.2); border-radius: 20px;
+      padding: 2.5rem 3rem; text-align: center; position: relative;
+    }
+    .tip-card::before {
+      content: '"'; position: absolute; top: -.2rem; left: 1.5rem;
+      font-family: 'Playfair Display', serif; font-size: 8rem;
+      color: rgba(245,158,11,.08); line-height: 1; pointer-events: none;
+    }
+    .tip-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.1rem, 2.2vw, 1.45rem); font-style: italic;
+      color: #fef3c7; line-height: 1.6; margin-bottom: 1.2rem;
+    }
+    .tip-author { font-size: .8rem; color: rgba(255,255,255,.4); letter-spacing: .05em; }
+    .tip-author strong { color: var(--amber); }
+
+    /* ── CTA BAND ─────────────────────── */
+    .cta-band {
+      background: linear-gradient(135deg, #78350f 0%, #7c2d12 40%, #450a0a 100%);
+      padding: 4.5rem 1.5rem; text-align: center; position: relative; overflow: hidden;
+    }
+    .cta-band::before {
+      content: '🍳'; position: absolute; right: 8%; top: 50%; transform: translateY(-50%);
+      font-size: 8rem; opacity: .08; pointer-events: none;
+    }
+    .cta-band::after {
+      content: '🧄'; position: absolute; left: 8%; top: 50%; transform: translateY(-50%);
+      font-size: 7rem; opacity: .1; pointer-events: none;
+    }
+    .cta-band h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.7rem, 3.2vw, 2.6rem); font-weight: 700;
+      color: var(--cream); margin-bottom: 1rem;
+    }
+    .cta-band p { color: rgba(254,243,199,.65); max-width: 440px; margin: 0 auto 2rem; line-height: 1.7; }
+
+    /* ── FOOTER ───────────────────────── */
+    footer {
+      background: #060400; padding: 2.5rem 1.5rem;
+      border-top: 1px solid rgba(245,158,11,.07);
+    }
+    .footer-inner {
+      max-width: 1000px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; gap: 2rem;
+      align-items: center; justify-content: space-between;
+    }
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem; color: var(--amber); font-weight: 700;
+    }
+    .footer-info p { font-size: .78rem; color: rgba(255,255,255,.25); margin: .15rem 0; }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-links a {
+      font-size: .82rem; color: rgba(255,255,255,.35);
+      text-decoration: none; transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--amber); }
+    .footer-disclaimer {
+      width: 100%; font-size: .72rem;
+      color: rgba(255,255,255,.18); text-align: center;
+      padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.05);
+    }
+
+    /* ── ANIMATIONS ───────────────────── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(26px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(6px); }
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 1rem 1.2rem; }
+      .nav-links { display: none; }
+      .tip-card { padding: 1.8rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-brand" href="/">
+      <span class="spoon">🥄</span>Recipe<span>Share</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/browse">Browse</a></li>
+      <li><a href="/add">Add Recipe</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a class="nav-cta" href="/add">+ Add Recipe</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-overlay"></div>
+
+    <!-- Floating food ingredients -->
+    <div class="floaties" aria-hidden="true">
+      <span class="floaty">🧄</span>
+      <span class="floaty">🌿</span>
+      <span class="floaty">🍋</span>
+      <span class="floaty">🧅</span>
+      <span class="floaty">🌶️</span>
+      <span class="floaty">🫚</span>
+      <span class="floaty">🧂</span>
+      <span class="floaty">🫛</span>
+      <span class="floaty">🥕</span>
+      <span class="floaty">🍄</span>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        For students, roommates &amp; home cooks
+      </div>
+      <h1 class="hero-h1">
+        <span class="line1">Your Recipes.</span>
+        <span class="line2">One Kitchen.</span>
+      </h1>
+      <p class="hero-sub">
+        No more lost screenshots or buried group chats. Add ingredients, 
+        write your steps, and let your whole crew cook from the same page.
+      </p>
+      <div class="hero-buttons">
+        <a href="/browse" class="btn-primary-hero">🍽️ &nbsp;Browse Recipes</a>
+        <a href="/add" class="btn-secondary-hero">Share Your Recipe</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat">
+          <div class="hstat-num">100%</div>
+          <div class="hstat-label">Free Forever</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num">No</div>
+          <div class="hstat-label">Account Needed</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num">∞</div>
+          <div class="hstat-label">Recipes to Share</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll to explore</span>
+      <i class="bi bi-chevron-down"></i>
+    </div>
+  </section>
+
+  <!-- CUISINE STRIP -->
+  <div class="cuisine-strip">
+    <div class="cuisine-inner">
+      <div class="cuisine-pill"><span class="emoji">🍝</span> Italian</div>
+      <div class="cuisine-pill"><span class="emoji">🍜</span> Asian</div>
+      <div class="cuisine-pill"><span class="emoji">🌮</span> Mexican</div>
+      <div class="cuisine-pill"><span class="emoji">🥗</span> Vegetarian</div>
+      <div class="cuisine-pill"><span class="emoji">🍛</span> Indian</div>
+      <div class="cuisine-pill"><span class="emoji">🥘</span> One-Pot</div>
+      <div class="cuisine-pill"><span class="emoji">🧁</span> Baking</div>
+      <div class="cuisine-pill"><span class="emoji">⚡</span> Quick &amp; Easy</div>
+    </div>
+  </div>
+
+  <!-- FEATURED RECIPES -->
+  <section class="section" id="featured">
+    <div class="section-inner">
+      <span class="section-label">From the Community</span>
+      <h2 class="section-title">Recently <em>loved</em> recipes</h2>
+      <p class="section-sub">Dishes your fellow cooks keep coming back to — and keep improving with tips.</p>
+
+      <div class="recipes-grid">
+        <a href="/browse" class="recipe-card">
+          <span class="card-emoji">🍝</span>
+          <div class="card-tags"><span class="tag">Italian</span><span class="tag">Pasta</span><span class="tag">Easy</span></div>
+          <div class="card-title">One-Pot Garlic Butter Pasta</div>
+          <div class="card-desc">Creamy, garlicky pasta in a single pot. Perfect for busy weeknights — dump it in, stir, done.</div>
+          <div class="card-meta">
+            <div class="card-meta-left"><i class="bi bi-person-circle"></i> Maria</div>
+            <div class="card-time"><i class="bi bi-chat-left-text"></i> 4 tips &nbsp;·&nbsp; <i class="bi bi-clock"></i> 30 min</div>
+          </div>
+        </a>
+
+        <a href="/browse" class="recipe-card">
+          <span class="card-emoji">🥗</span>
+          <div class="card-tags"><span class="tag">Vegetarian</span><span class="tag">Healthy</span></div>
+          <div class="card-title">Roasted Chickpea Power Bowl</div>
+          <div class="card-desc">Crispy chickpeas, fresh greens, tahini drizzle. Filling enough for dinner, light enough for lunch.</div>
+          <div class="card-meta">
+            <div class="card-meta-left"><i class="bi bi-person-circle"></i> Alex</div>
+            <div class="card-time"><i class="bi bi-chat-left-text"></i> 7 tips &nbsp;·&nbsp; <i class="bi bi-clock"></i> 25 min</div>
+          </div>
+        </a>
+
+        <a href="/browse" class="recipe-card">
+          <span class="card-emoji">🍜</span>
+          <div class="card-tags"><span class="tag">Asian</span><span class="tag">Spicy</span><span class="tag">Budget</span></div>
+          <div class="card-title">Dorm Room Ramen Upgrade</div>
+          <div class="card-desc">Soft-boiled egg, scallions, sesame oil, chili flakes. Turn a $0.25 packet into an actual meal.</div>
+          <div class="card-meta">
+            <div class="card-meta-left"><i class="bi bi-person-circle"></i> Jordan</div>
+            <div class="card-time"><i class="bi bi-chat-left-text"></i> 12 tips &nbsp;·&nbsp; <i class="bi bi-clock"></i> 15 min</div>
+          </div>
+        </a>
+      </div>
+
+      <div style="text-align:center; margin-top:2.8rem;">
+        <a href="/browse" class="btn-primary-hero">View All Recipes →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="hiw-section">
+    <div class="section-inner">
+      <span class="section-label">How It Works</span>
+      <h2 class="section-title">From messy notes to <em>the group recipe book</em></h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-icon">📝</span>
+          <div class="step-num">Step 01</div>
+          <h3>Write Your Recipe</h3>
+          <p>Paste your ingredients and steps. Add tags like "vegetarian" or "30 min" so people can find it.</p>
+        </div>
+        <div class="step">
+          <span class="step-icon">🔍</span>
+          <div class="step-num">Step 02</div>
+          <h3>Search &amp; Filter</h3>
+          <p>Filter by ingredient, tag, or author name. Find exactly what you want to cook tonight.</p>
+        </div>
+        <div class="step">
+          <span class="step-icon">💬</span>
+          <div class="step-num">Step 03</div>
+          <h3>Drop a Tip</h3>
+          <p>Made it? Leave a comment — add more chili, swap the cream, skip the step that doesn't work.</p>
+        </div>
+        <div class="step">
+          <span class="step-icon">🍴</span>
+          <div class="step-num">Step 04</div>
+          <h3>Cook Together</h3>
+          <p>Share a link with your roommates. Everyone has the recipe, no one has to ask twice.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE CALLOUT -->
+  <section class="tip-section">
+    <div class="section-inner">
+      <div class="tip-card">
+        <p class="tip-quote">
+          "I used to screenshot every recipe I wanted to try. Now I just add it here and my roommates 
+          can see it too. Someone even left a tip that made my chicken tikka actually good."
+        </p>
+        <p class="tip-author">— <strong>Jordan, CS sophomore</strong> · left a comment on Dorm Room Ramen</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <div class="cta-band">
+    <h2>Got a recipe worth sharing?</h2>
+    <p>It takes under a minute. No login, no ads, no nonsense — just your recipe and a place to keep it.</p>
+    <a href="/add" class="btn-primary-hero">🧑‍🍳 &nbsp;Add Your First Recipe</a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">🥄 RecipeShare</div>
+        <div class="footer-info" style="margin-top:.4rem;">
+          <p>CS 408 — Full Stack Web Development · Spring 2026</p>
+          <p>Ahmad Rao &amp; Chris Hastings</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/browse">Browse</a>
+        <a href="/add">Add Recipe</a>
+        <a href="/about">About</a>
+      </div>
+      <p class="footer-disclaimer">
+        Recipes are user-submitted. RecipeShare makes no guarantees about accuracy, dietary suitability, or results.
+      </p>
+    </div>
+  </footer>
+
+  <!-- WEBGL EMBER SHADER -->
+  <script>
+  (function () {
+    const canvas = document.getElementById('hero-canvas');
+    const gl = canvas.getContext('webgl2');
+    if (!gl) { canvas.style.background = '#1a0800'; return; }
+
+    const vertSrc = `#version 300 es
+precision highp float;
+in vec4 position;
+void main(){ gl_Position = position; }`;
+
+    /* Tweaked shader: warm amber/ember palette instead of the original cool nebula */
+    const fragSrc = `#version 300 es
+precision highp float;
+out vec4 O;
+uniform vec2 resolution;
+uniform float time;
+#define FC gl_FragCoord.xy
+#define T time
+#define R resolution
+#define MN min(R.x,R.y)
+float rnd(vec2 p){
+  p=fract(p*vec2(12.9898,78.233));
+  p+=dot(p,p+34.56);
+  return fract(p.x*p.y);
+}
+float noise(in vec2 p){
+  vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);
+  float a=rnd(i),b=rnd(i+vec2(1,0)),c=rnd(i+vec2(0,1)),d=rnd(i+1.);
+  return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);
+}
+float fbm(vec2 p){
+  float t=.0,a=1.; mat2 m=mat2(1.,-.5,.2,1.2);
+  for(int i=0;i<5;i++){t+=a*noise(p);p*=2.*m;a*=.5;}
+  return t;
+}
+float clouds(vec2 p){
+  float d=1.,t=.0;
+  for(float i=.0;i<3.;i++){
+    float a=d*fbm(i*10.+p.x*.2+.2*(1.+i)*p.y+d+i*i+p);
+    t=mix(t,d,a); d=a; p*=2./(i+1.);
+  }
+  return t;
+}
+void main(void){
+  vec2 uv=(FC-.5*R)/MN, st=uv*vec2(2,1);
+  vec3 col=vec3(0);
+  float bg=clouds(vec2(st.x+T*.4,-st.y));
+  uv*=1.-.3*(sin(T*.18)*.5+.5);
+  for(float i=1.;i<12.;i++){
+    uv+=.1*cos(i*vec2(.1+.01*i,.8)+i*i+T*.45+.1*uv.x);
+    vec2 p=uv;
+    float d=length(p);
+    /* Warm orange/red/amber color basis instead of generic cos(vec3(1,2,3)) */
+    vec3 warmBase = vec3(
+      .9 + .1*sin(i*.7),
+      .25 + .15*sin(i*.5 + 1.0),
+      .02 + .03*sin(i*1.2)
+    );
+    col+=.00125/d*warmBase;
+    float b=noise(i+p+bg*1.731);
+    col+=.002*b/length(max(p,vec2(b*p.x*.02,p.y)));
+    /* Background tint: deep amber glow */
+    col=mix(col,vec3(bg*.38,bg*.14,bg*.02),d);
+  }
+  /* Boost reds and ambers, suppress blue */
+  col.r = pow(col.r, .75);
+  col.g = pow(col.g, .88);
+  col.b = col.b * .3;
+  O=vec4(col,1);
+}`;
+
+    function mkShader(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      return s;
+    }
+    const prog = gl.createProgram();
+    gl.attachShader(prog, mkShader(gl.VERTEX_SHADER, vertSrc));
+    gl.attachShader(prog, mkShader(gl.FRAGMENT_SHADER, fragSrc));
+    gl.linkProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,1,-1,-1,1,1,1,-1]), gl.STATIC_DRAW);
+    const pos = gl.getAttribLocation(prog, 'position');
+    gl.enableVertexAttribArray(pos);
+    gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes  = gl.getUniformLocation(prog, 'resolution');
+    const uTime = gl.getUniformLocation(prog, 'time');
+
+    function resize() {
+      const dpr = Math.max(1, .5 * window.devicePixelRatio);
+      canvas.width  = canvas.clientWidth  * dpr;
+      canvas.height = canvas.clientHeight * dpr;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    function render(now) {
+      gl.useProgram(prog);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, now * 1e-3);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      requestAnimationFrame(render);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(render);
+  })();
+  </script>
+</body>
+</html>
