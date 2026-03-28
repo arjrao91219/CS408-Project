@@ -1,11 +1,35 @@
 {% extends "base.html" %}
 {% block title %}About - RecipeShare{% endblock %}
 {% block content %}
-<div class="mb-4">
-    <h1>About RecipeShare</h1>
-    <p class="text-muted">Learn more about our project.</p>
-</div>
-<div class="alert alert-secondary" role="alert">
-    <strong>[Placeholder]</strong> Information about the application's purpose, target audience, and development team (Ahmad Rao & Chris Hastings) will be placed here.
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+    @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
+    :root { --amber: #f59e0b; --cream: #fef9f0; --dark: #0c0701; }
+    body { background-color: var(--dark) !important; color: #fff !important; font-family: 'DM Sans', sans-serif; }
+    .bg-light { background-color: rgba(12,7,1,0.95) !important; border-color: rgba(245,158,11,.1) !important; }
+    .navbar-brand { font-family: 'Playfair Display', serif; font-size: 1.45rem !important; font-weight: 900 !important; color: var(--amber) !important; }
+    .nav-link { color: rgba(255,255,255,.7) !important; font-size: .85rem; text-transform: uppercase; }
+    footer.bg-light p, footer.bg-light .text-muted { color: rgba(255,255,255,.4) !important; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: var(--cream); }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 text-center">
+        <h1 class="section-title mb-3">About <em style="color: var(--amber); font-style: italic;">RecipeShare</em></h1>
+        <p style="color: rgba(255,255,255,.45);" class="mb-5">The story behind the platform and the developers who built it.</p>
+
+        <div class="p-5 rounded-4 text-start" style="background: linear-gradient(135deg, #1a0f07 0%, #110904 100%); border: 1px solid rgba(245,158,11,.15);">
+            <h4 class="text-warning mb-3" style="font-family: 'Playfair Display', serif;">The Project</h4>
+            <p style="color: rgba(255,255,255,0.7); line-height: 1.8;">
+                RecipeShare is a collaborative recipe sharing platform designed to help students, home cooks, and people with busy lifestyles organize their culinary ideas in one place.
+            </p>
+            <hr class="my-4" style="border-color: rgba(245,158,11,0.2);">
+            <h4 class="text-warning mb-3" style="font-family: 'Playfair Display', serif;">The Developers</h4>
+            <p style="color: rgba(255,255,255,0.7); line-height: 1.8;">
+                Built by <strong>Ahmad Rao</strong> and <strong>Chris Hastings</strong>.<br>
+                Developed as a core project for <em>CS 408</em>.
+            </p>
+        </div>
+    </div>
 </div>
 {% endblock %}

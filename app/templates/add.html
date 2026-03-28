@@ -1,11 +1,62 @@
 {% extends "base.html" %}
 {% block title %}Add Recipe - RecipeShare{% endblock %}
 {% block content %}
-<div class="mb-4">
-    <h1>Add New Recipe</h1>
-    <p class="text-muted">Fill out the form below to add a new recipe to the platform.</p>
-</div>
-<div class="alert alert-secondary" role="alert">
-    <strong>[Placeholder]</strong> The recipe submission form with fields for Title, Author, Description, Ingredients, Steps, and Tags will go here.
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+    :root { --amber: #f59e0b; --orange: #ea580c; --cream: #fef9f0; --dark: #0c0701; }
+    body { background-color: var(--dark) !important; color: #fff !important; font-family: 'DM Sans', sans-serif; }
+    .bg-light { background-color: rgba(12,7,1,0.95) !important; border-color: rgba(245,158,11,.1) !important; }
+    .navbar-brand { font-family: 'Playfair Display', serif; font-size: 1.45rem !important; font-weight: 900 !important; color: var(--amber) !important; }
+    .nav-link { color: rgba(255,255,255,.7) !important; font-size: .85rem; font-weight: 500; text-transform: uppercase; }
+    footer.bg-light p, footer.bg-light .text-muted { color: rgba(255,255,255,.4) !important; }
+
+    .section-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: var(--cream); }
+    .section-title em { font-style: italic; color: var(--amber); }
+    .dark-input { background: rgba(255,255,255,0.03); border: 1px solid rgba(245,158,11,0.15); color: #fff; border-radius: 8px; }
+    .dark-input:focus { background: rgba(255,255,255,0.06); border-color: var(--amber); color: #fff; box-shadow: 0 0 0 0.2rem rgba(245,158,11,0.25); outline: none; }
+    .dark-input::placeholder { color: rgba(255,255,255,0.3); }
+    .form-label { font-size: 0.85rem; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 0.4rem; font-weight: 600; }
+    .btn-primary-custom { background: linear-gradient(135deg, #f59e0b, #ea580c); color: #000 !important; border: none; border-radius: 999px; padding: 0.7rem 1.8rem; font-weight: 700; transition: transform 0.2s; text-decoration: none; }
+    .btn-secondary-custom { background: rgba(255,255,255,.06); border: 1px solid rgba(245,158,11,.28); color: #fde68a !important; border-radius: 999px; padding: 0.7rem 1.8rem; font-weight: 500; transition: background 0.2s; text-decoration: none; text-align: center; }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="text-center mb-5">
+            <h1 class="section-title">Share a <em>Recipe</em></h1>
+            <p style="color: rgba(255,255,255,.45);">Fill out the form below to add a new dish to the platform.</p>
+        </div>
+
+        <div class="p-4 p-md-5 rounded-4" style="background: linear-gradient(135deg, #1f1005 0%, #150a04 100%); border: 1px solid rgba(245,158,11,.2); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+            <form method="POST">
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label class="form-label text-warning">Recipe Title *</label>
+                        <input type="text" class="form-control dark-input" placeholder="e.g. Classic Spaghetti Carbonara" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-warning">Author Name *</label>
+                        <input type="text" class="form-control dark-input" placeholder="e.g. Chris H." required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-warning">Ingredients *</label>
+                    <textarea class="form-control dark-input" rows="4" placeholder="- 1 lb pasta&#10;- 2 cloves garlic" required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-warning">Preparation Steps *</label>
+                    <textarea class="form-control dark-input" rows="5" placeholder="1. Boil water...&#10;2. Sauté garlic..." required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-warning">Tags</label>
+                    <input type="text" class="form-control dark-input" placeholder="e.g. Italian, Pasta, 30min">
+                </div>
+                <div class="mt-5 d-flex gap-3">
+                    <button type="submit" class="btn-primary-custom w-100">Submit Recipe</button>
+                    <a href="/" class="btn-secondary-custom w-100">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

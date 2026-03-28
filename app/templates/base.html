@@ -4,35 +4,175 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Collaborative Recipe Sharing Platform{% endblock %}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    
+    <style>
+        :root {
+            --amber:   #f59e0b;
+            --orange:  #ea580c;
+            --cream:   #fef9f0;
+            --dark:    #0c0701;
+            --card-bg: #170f06;
+        }
+
+        body { 
+            font-family: 'DM Sans', sans-serif; 
+            background: var(--dark); 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh;
+        }
+
+        /* ── NAV ─────────────────────────── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(to bottom, rgba(12,7,1,.95) 0%, rgba(12,7,1,0.8) 70%, transparent 100%);
+            backdrop-filter: blur(8px);
+        }
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.45rem; font-weight: 900; color: var(--amber);
+            text-decoration: none; letter-spacing: -0.02em;
+            display: flex; align-items: center; gap: .4rem;
+        }
+        .nav-brand span { color: #fff; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; margin-bottom: 0; padding-left: 0; }
+        .nav-links a {
+            color: rgba(255,255,255,.7); text-decoration: none;
+            font-size: .85rem; font-weight: 500; letter-spacing: .05em;
+            text-transform: uppercase; transition: color .2s;
+        }
+        .nav-links a:hover { color: var(--amber); }
+        .nav-cta {
+            padding: .5rem 1.3rem !important;
+            background: var(--amber) !important; color: #000 !important;
+            border-radius: 999px; font-weight: 600 !important;
+            transition: background .2s, transform .15s !important;
+            text-transform: none !important; letter-spacing: 0 !important;
+        }
+        .nav-cta:hover { background: var(--orange) !important; transform: scale(1.04); color: #000 !important; }
+
+        /* ── GLOBAL TYPOGRAPHY & BUTTONS ─── */
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3rem); font-weight: 700;
+            line-height: 1.1; color: var(--cream);
+        }
+        .section-title em { font-style: italic; color: var(--amber); }
+        .section-sub {
+            margin-top: .8rem; color: rgba(255,255,255,.45);
+            font-size: 1rem; line-height: 1.7;
+        }
+        .btn-primary-hero {
+            padding: .85rem 2.1rem;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+            color: #000 !important; border: none; border-radius: 999px;
+            font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .95rem;
+            cursor: pointer; transition: transform .2s, box-shadow .2s;
+            text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+        }
+        .btn-primary-hero:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 25px rgba(245,158,11,.4);
+        }
+        .btn-secondary-hero {
+            padding: .85rem 2.1rem;
+            background: rgba(255,255,255,.06); border: 1px solid rgba(245,158,11,.28);
+            color: #fde68a !important; border-radius: 999px;
+            font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem;
+            cursor: pointer; transition: background .2s, transform .2s;
+            text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .btn-secondary-hero:hover { background: rgba(245,158,11,.15); transform: scale(1.04); color: #fff !important; }
+
+        /* ── CUSTOM DARK FORMS ───────────── */
+        .dark-input {
+            background: rgba(255,255,255,0.03) !important;
+            border: 1px solid rgba(245,158,11,0.15) !important;
+            color: #fff !important; border-radius: 8px;
+        }
+        .dark-input:focus {
+            background: rgba(255,255,255,0.06) !important;
+            border-color: var(--amber) !important; 
+            box-shadow: 0 0 0 0.2rem rgba(245,158,11,0.25) !important;
+        }
+        .dark-input::placeholder { color: rgba(255,255,255,0.3) !important; }
+        .form-label { font-size: 0.85rem; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 0.4rem; font-weight: 600; }
+
+        /* ── LAYOUT SPACING ──────────────── */
+        .inner-page-padding { padding-top: 130px; padding-bottom: 60px; }
+        
+        /* ── FOOTER ───────────────────────── */
+        footer {
+            background: #060400; padding: 2.5rem 1.5rem;
+            border-top: 1px solid rgba(245,158,11,.07); margin-top: auto;
+        }
+        .footer-inner {
+            max-width: 1000px; margin: 0 auto;
+            display: flex; flex-wrap: wrap; gap: 2rem;
+            align-items: center; justify-content: space-between;
+        }
+        .footer-brand { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--amber); font-weight: 700; }
+        .footer-info p { font-size: .78rem; color: rgba(255,255,255,.25); margin: .15rem 0; }
+        .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .footer-links a { font-size: .82rem; color: rgba(255,255,255,.35); text-decoration: none; transition: color .2s; }
+        .footer-links a:hover { color: var(--amber); }
+        .footer-disclaimer {
+            width: 100%; font-size: .72rem; color: rgba(255,255,255,.18); text-align: center;
+            padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.05); margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 1rem 1.2rem; }
+            .nav-links { display: none; }
+        }
+    </style>
+    {% block head %}{% endblock %}
 </head>
-<body class="d-flex flex-column min-vh-100">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-        <div class="container">
-            <a class="navbar-brand" href="/">RecipeShare</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/browse">Browse Recipes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/add">Add Recipe</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-                </ul>
-            </div>
-        </div>
+<body>
+
+    <nav>
+        <a class="nav-brand" href="/">
+            <span style="font-size: 1.1rem;">🥄</span>Recipe<span>Share</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/browse">Browse</a></li>
+            <li><a href="/add">Add Recipe</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a class="nav-cta" href="/add">+ Add Recipe</a></li>
+        </ul>
     </nav>
 
-    <main class="container my-5 flex-grow-1">
+    <main class="container flex-grow-1 inner-page-padding">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-light text-center py-4 mt-auto border-top">
-        <div class="container">
-            <p class="mb-1 fw-bold">Collaborative Recipe Sharing Platform</p>
-            <p class="mb-1">CS 408 - Full Stack Web Development | Spring 2026</p>
-            <p class="text-muted small mb-0">Disclaimer: Recipes are user-submitted.</p>
+    <footer>
+        <div class="footer-inner">
+            <div>
+                <div class="footer-brand">🥄 RecipeShare</div>
+                <div class="footer-info" style="margin-top:.4rem;">
+                    <p>CS 408 — Full Stack Web Development · Spring 2026</p>
+                    <p>Ahmad Rao & Chris Hastings</p>
+                </div>
+            </div>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/browse">Browse</a>
+                <a href="/add">Add Recipe</a>
+                <a href="/about">About</a>
+            </div>
+            <p class="footer-disclaimer">
+                Recipes are user-submitted. RecipeShare makes no guarantees about accuracy, dietary suitability, or results.
+            </p>
         </div>
     </footer>
 

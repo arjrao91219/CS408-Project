@@ -1,14 +1,58 @@
 {% extends "base.html" %}
 {% block title %}Browse Recipes - RecipeShare{% endblock %}
+
+{% block head %}
+<style>
+    .recipes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.4rem; }
+    .recipe-card {
+      background: var(--card-bg); border: 1px solid rgba(245,158,11,.1); border-radius: 18px; padding: 1.5rem; transition: transform .25s, border-color .25s, box-shadow .25s;
+      cursor: pointer; text-decoration: none; display: block; color: inherit; position: relative; overflow: hidden;
+    }
+    .recipe-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at top left, rgba(245,158,11,.06) 0%, transparent 60%); opacity: 0; transition: opacity .3s; }
+    .recipe-card:hover { transform: translateY(-5px); border-color: rgba(245,158,11,.3); box-shadow: 0 16px 45px rgba(245,158,11,.1); color: inherit;}
+    .recipe-card:hover::before { opacity: 1; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .9rem; }
+    .tag { font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: .18rem .6rem; background: rgba(245,158,11,.13); color: #fbbf24; border-radius: 999px; border: 1px solid rgba(245,158,11,.2); }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: var(--cream); margin-bottom: .45rem; line-height: 1.25; }
+    .card-desc { font-size: .85rem; color: rgba(255,255,255,.45); line-height: 1.65; }
+    .card-meta { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; justify-content: space-between; font-size: .78rem; color: rgba(255,255,255,.3); }
+    .card-meta i { color: rgba(245,158,11,.6); }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
-        <h1>All Recipes</h1>
-        <p class="text-muted">Browse and filter through our collection.</p>
+        <h1 class="section-title">All <em>Recipes</em></h1>
+        <p class="section-sub mb-0">Browse and filter through our community collection.</p>
     </div>
-    <a href="/add" class="btn btn-warning text-white">+ Add New Recipe</a>
+    <a href="/add" class="btn-primary-hero">+ Add New Recipe</a>
 </div>
-<div class="alert alert-secondary" role="alert">
-    <strong>[Placeholder]</strong> The recipe list, filter sidebar (category, prep time), and search bar will be implemented here.
+
+<div class="mb-5 p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(245,158,11,0.1);">
+    <div class="row g-3">
+        <div class="col-md-8">
+            <input type="text" class="form-control dark-input py-2" placeholder="Search by ingredient, title, or author...">
+        </div>
+        <div class="col-md-4">
+            <select class="form-select dark-input py-2">
+                <option selected>Filter by Category...</option>
+                <option value="1">Vegetarian</option>
+                <option value="2">Quick & Easy</option>
+                <option value="3">Dessert</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="recipes-grid">
+    <a href="/recipes/1" class="recipe-card">
+        <div class="card-tags"><span class="tag">Placeholder</span></div>
+        <div class="card-title">[Recipe Title Placeholder]</div>
+        <div class="card-desc">Once the backend list endpoint is finished, recipes from the database will populate here dynamically.</div>
+        <div class="card-meta">
+            <div><i class="bi bi-person-circle"></i> Author Name</div>
+        </div>
+    </a>
 </div>
 {% endblock %}
