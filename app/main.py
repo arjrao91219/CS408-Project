@@ -1,29 +1,15 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from app.database import engine, Base
+from app.routers import pages
 
-app = FastAPI()
+# Create database tables locally on startup
+Base.metadata.create_all(bind=engine)
 
-# Set up the templates directory
-templates = Jinja2Templates(directory="app/templates")
+app = FastAPI(title="RecipeShare API")
 
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+# Mount static assets
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-@app.get("/browse", response_class=HTMLResponse)
-async def browse(request: Request):
-    return templates.TemplateResponse("browse.html", {"request": request})
-
-@app.get("/add", response_class=HTMLResponse)
-async def add_recipe(request: Request):
-    return templates.TemplateResponse("add.html", {"request": request})
-
-@app.get("/recipes/{id}", response_class=HTMLResponse)
-async def recipe_detail(request: Request, id: int):
-    # Conditionally retrieves based on recipe ID in the future
-    return templates.TemplateResponse("detail.html", {"request": request, "id": id})
-
-@app.get("/about", response_class=HTMLResponse)
-async def about(request: Request):
-    return templates.TemplateResponse("about.html", {"request": request})
+# Include the UI router
+app.include_router(pages.router)

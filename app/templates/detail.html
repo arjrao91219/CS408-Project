@@ -1,14 +1,49 @@
 {% extends "base.html" %}
 {% block title %}Recipe Detail - RecipeShare{% endblock %}
 {% block content %}
-<div class="mb-4 border-bottom pb-3">
-    <h1>[Recipe Title]</h1>
-    <p class="text-muted mb-0">Author: [Author Name] | Created: [Date]</p>
-</div>
-<div class="alert alert-secondary mb-4" role="alert">
-    <strong>[Placeholder]</strong> The full recipe details (Description, Ingredients, and Preparation Steps) will be displayed here dynamically based on the ID: {{ id }}.
-</div>
-<div class="alert alert-secondary" role="alert">
-    <strong>[Placeholder]</strong> The comments and tips section will go here.
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+    @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
+    :root { --amber: #f59e0b; --cream: #fef9f0; --dark: #0c0701; --card-bg: #170f06;}
+    body { background-color: var(--dark) !important; color: #fff !important; font-family: 'DM Sans', sans-serif; }
+    .bg-light { background-color: rgba(12,7,1,0.95) !important; border-color: rgba(245,158,11,.1) !important; }
+    .navbar-brand { font-family: 'Playfair Display', serif; font-size: 1.45rem !important; font-weight: 900 !important; color: var(--amber) !important; }
+    .nav-link { color: rgba(255,255,255,.7) !important; font-size: .85rem; text-transform: uppercase; }
+    footer.bg-light p, footer.bg-light .text-muted { color: rgba(255,255,255,.4) !important; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: var(--cream); }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="mb-5 border-bottom pb-4" style="border-color: rgba(245,158,11,0.2) !important;">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge" style="background: rgba(245,158,11,.13); color: #fbbf24; border: 1px solid rgba(245,158,11,.2);">Placeholder Tag</span>
+            </div>
+            <h1 class="section-title mb-3">[Recipe Title Placeholder]</h1>
+            <p style="color: rgba(255,255,255,.45);"><i class="bi bi-person-circle text-warning"></i> By [Author Name] <span class="mx-2">|</span> Created: [Date]</p>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-md-4">
+                <h4 class="font-monospace text-warning mb-3" style="font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase;">Ingredients</h4>
+                <div class="p-4 rounded-4" style="background: var(--card-bg); border: 1px solid rgba(245,158,11,0.1);">
+                    <ul class="list-unstyled mb-0" style="color: rgba(255,255,255,0.7); line-height: 2;">
+                        <li><i class="bi bi-check2 text-warning me-2"></i> Ingredient 1</li>
+                        <li><i class="bi bi-check2 text-warning me-2"></i> Ingredient 2</li>
+                        <li class="mt-3 text-muted" style="font-size: 0.85rem; font-style: italic;">Dynamic list pending DB wiring...</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <h4 class="font-monospace text-warning mb-3" style="font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase;">Preparation Steps</h4>
+                <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                    <p style="color: rgba(255,255,255,0.8); line-height: 1.8;">
+                        <strong>1. </strong> [Step 1 description]<br><br>
+                        <span class="text-muted" style="font-style: italic;">Full steps will render here dynamically based on ID: {{ id }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

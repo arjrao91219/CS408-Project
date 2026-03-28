@@ -2,3 +2,5 @@ fastapi
 uvicorn
 pytest
 jinja2
+sqlalchemy
+httpx
