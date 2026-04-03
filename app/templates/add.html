@@ -28,28 +28,32 @@
         </div>
 
         <div class="p-4 p-md-5 rounded-4" style="background: linear-gradient(135deg, #1f1005 0%, #150a04 100%); border: 1px solid rgba(245,158,11,.2); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
-            <form method="POST">
+            <form method="POST" action="/add">
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3 mb-md-0">
                         <label class="form-label text-warning">Recipe Title *</label>
-                        <input type="text" class="form-control dark-input" placeholder="e.g. Classic Spaghetti Carbonara" required>
+                        <input type="text" name="title" class="form-control dark-input" placeholder="e.g. Classic Spaghetti Carbonara" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-warning">Author Name *</label>
-                        <input type="text" class="form-control dark-input" placeholder="e.g. Chris H." required>
+                        <input type="text" name="author" class="form-control dark-input" placeholder="e.g. Chris H." required>
                     </div>
                 </div>
                 <div class="mb-4">
+                    <label class="form-label text-warning">Description</label>
+                    <textarea name="description" class="form-control dark-input" rows="3" placeholder="A short summary of the dish, flavor, or when to make it."></textarea>
+                </div>
+                <div class="mb-4">
                     <label class="form-label text-warning">Ingredients *</label>
-                    <textarea class="form-control dark-input" rows="4" placeholder="- 1 lb pasta&#10;- 2 cloves garlic" required></textarea>
+                    <textarea name="ingredients" class="form-control dark-input" rows="4" placeholder="- 1 lb pasta&#10;- 2 cloves garlic" required></textarea>
                 </div>
                 <div class="mb-4">
                     <label class="form-label text-warning">Preparation Steps *</label>
-                    <textarea class="form-control dark-input" rows="5" placeholder="1. Boil water...&#10;2. Sauté garlic..." required></textarea>
+                    <textarea name="steps" class="form-control dark-input" rows="5" placeholder="1. Boil water...&#10;2. Sauté garlic..." required></textarea>
                 </div>
                 <div class="mb-4">
                     <label class="form-label text-warning">Tags</label>
-                    <input type="text" class="form-control dark-input" placeholder="e.g. Italian, Pasta, 30min">
+                    <input type="text" name="tags" class="form-control dark-input" placeholder="e.g. Italian, Pasta, 30min">
                 </div>
                 <div class="mt-5 d-flex gap-3">
                     <button type="submit" class="btn-primary-custom w-100">Submit Recipe</button>

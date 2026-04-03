@@ -4,3 +4,4 @@ pytest
 jinja2
 sqlalchemy
 httpx
+python-multipart

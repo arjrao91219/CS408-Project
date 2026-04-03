@@ -30,29 +30,52 @@
 </div>
 
 <div class="mb-5 p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(245,158,11,0.1);">
-    <div class="row g-3">
+    <form method="GET" action="/browse" class="row g-3">
         <div class="col-md-8">
-            <input type="text" class="form-control dark-input py-2" placeholder="Search by ingredient, title, or author...">
+            <input type="text" name="search" value="{{ filters.search }}" class="form-control dark-input py-2" placeholder="Search by ingredient, title, or description...">
         </div>
-        <div class="col-md-4">
-            <select class="form-select dark-input py-2">
-                <option selected>Filter by Category...</option>
-                <option value="1">Vegetarian</option>
-                <option value="2">Quick & Easy</option>
-                <option value="3">Dessert</option>
-            </select>
+        <div class="col-md-2">
+            <input type="text" name="tag" value="{{ filters.tag }}" class="form-control dark-input py-2" placeholder="Tag">
         </div>
-    </div>
+        <div class="col-md-2">
+            <input type="text" name="author" value="{{ filters.author }}" class="form-control dark-input py-2" placeholder="Author">
+        </div>
+        <div class="col-12 d-flex gap-3 flex-wrap">
+            <button type="submit" class="btn-primary-hero">Apply Filters</button>
+            <a href="/browse" class="btn-secondary-hero">Reset</a>
+        </div>
+    </form>
 </div>
 
+{% if recipes %}
 <div class="recipes-grid">
-    <a href="/recipes/1" class="recipe-card">
-        <div class="card-tags"><span class="tag">Placeholder</span></div>
-        <div class="card-title">[Recipe Title Placeholder]</div>
-        <div class="card-desc">Once the backend list endpoint is finished, recipes from the database will populate here dynamically.</div>
+    {% for recipe in recipes %}
+    <a href="/recipes/{{ recipe.id }}" class="recipe-card">
+        <div class="card-tags">
+            {% if recipe.tags %}
+                {% for tag_name in recipe.tags.split(",") %}
+                    {% if tag_name.strip() %}
+                    <span class="tag">{{ tag_name.strip() }}</span>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <span class="tag">Community Recipe</span>
+            {% endif %}
+        </div>
+        <div class="card-title">{{ recipe.title }}</div>
+        <div class="card-desc">{{ recipe.description if recipe.description else "No description added yet." }}</div>
         <div class="card-meta">
-            <div><i class="bi bi-person-circle"></i> Author Name</div>
+            <div><i class="bi bi-person-circle"></i> {{ recipe.author if recipe.author else "Anonymous" }}</div>
+            <div>{{ recipe.created_at.strftime("%b %d, %Y") if recipe.created_at else "Just added" }}</div>
         </div>
     </a>
+    {% endfor %}
 </div>
+{% else %}
+<div class="p-5 rounded-4 text-center" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(245,158,11,0.1);">
+    <h2 class="section-title" style="font-size: 2rem;">No <em>Recipes</em> Yet</h2>
+    <p class="section-sub mx-auto">Add the first recipe to start building the shared collection.</p>
+    <a href="/add" class="btn-primary-hero mt-3">Share the First Recipe</a>
+</div>
+{% endif %}
 {% endblock %}
