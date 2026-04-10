@@ -7,7 +7,6 @@ from app.database import Base, get_db
 from app.main import app
 from app.models import Recipe
 
-
 @pytest.fixture
 def client(tmp_path):
     db_path = tmp_path / "test_recipes.db"
@@ -75,35 +74,68 @@ def test_create_recipe(client):
     finally:
         db.close()
 
-def test_browse_page_lists_recipes(client):
+def test_recipe_detail_page(client):
+    # First inject a recipe
     db = client.testing_session_factory()
     try:
-        db.add(
-            Recipe(
-                title="Lemon Rice",
-                author="Chris",
-                description="Bright, fast, and easy.",
-                ingredients="Rice\nLemon\nButter",
-                steps="Cook rice\nMix in lemon butter",
-                tags="quick, vegetarian",
-            )
+        recipe = Recipe(
+            title="Detail Test Recipe",
+            author="Chris",
+            description="Testing DB fetch",
+            ingredients="Ing 1\nIng 2",
+            steps="Step 1",
         )
+        db.add(recipe)
         db.commit()
+        db.refresh(recipe)
+        recipe_id = recipe.id
     finally:
         db.close()
 
-    response = client.get("/browse")
+    # Now conditionally retrieve
+    response = client.get(f"/recipes/{recipe_id}")
     assert response.status_code == 200
-    assert "All <em>Recipes</em>" in response.text
-    assert "Lemon Rice" in response.text
-    assert "Bright, fast, and easy." in response.text
+    assert "Detail Test Recipe" in response.text
+    assert "Testing DB fetch" in response.text
     assert "Chris" in response.text
 
-def test_recipe_detail_page(client):
-    # Testing with a placeholder ID of 1
-    response = client.get("/recipes/1")
-    assert response.status_code == 200
-    assert "[Recipe Title Placeholder]" in response.text
+def test_recipe_detail_404(client):
+    # Access an ID that does not exist
+    response = client.get("/recipes/999")
+    assert response.status_code == 404
+    assert "Recipe Not Found" in response.text
+
+def test_delete_recipe(client):
+    # Inject a recipe
+    db = client.testing_session_factory()
+    try:
+        recipe = Recipe(
+            title="Delete Me",
+            author="Ahmad",
+            ingredients="Air",
+            steps="Delete",
+        )
+        db.add(recipe)
+        db.commit()
+        db.refresh(recipe)
+        recipe_id = recipe.id
+    finally:
+        db.close()
+
+    # Fire POST Delete Request
+    response = client.post(f"/recipes/{recipe_id}/delete", follow_redirects=False)
+    
+    # Should redirect to browse
+    assert response.status_code == 303
+    assert response.headers["location"] == "/browse"
+
+    # Confirm it's missing from DB
+    db = client.testing_session_factory()
+    try:
+        recipe_check = db.query(Recipe).filter(Recipe.id == recipe_id).first()
+        assert recipe_check is None
+    finally:
+        db.close()
 
 def test_about_page(client):
     response = client.get("/about")

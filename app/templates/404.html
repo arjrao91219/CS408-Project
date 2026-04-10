@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}404 - Not Found{% endblock %}
+{% block content %}
+<div class="row justify-content-center text-center mt-5">
+    <div class="col-md-6 p-5 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(245,158,11,0.1);">
+        <h1 class="display-1" style="font-family: 'Playfair Display', serif; color: var(--amber); font-weight: 900;">404</h1>
+        <h2 class="mb-3">Recipe Not Found</h2>
+        <p style="color: rgba(255,255,255,0.6);" class="mb-4">The recipe you're looking for might have been deleted, or the URL is incorrect.</p>
+        <a href="/browse" class="btn-primary-hero">Return to Recipes</a>
+    </div>
+</div>
+{% endblock %}
