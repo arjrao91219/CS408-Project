@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Form, Request, status
+from fastapi import APIRouter, Depends, Form, Request, status, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import or_
@@ -78,9 +78,22 @@ async def create_recipe(
     return RedirectResponse(url="/browse", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.get("/recipes/{id}", response_class=HTMLResponse)
-async def recipe_detail(request: Request, id: int):
-    # Conditionally retrieves based on recipe ID in the future
-    return templates.TemplateResponse(request=request, name="detail.html", context={"id": id})
+async def recipe_detail(request: Request, id: int, db: Session = Depends(get_db)):
+    recipe = db.query(Recipe).filter(Recipe.id == id).first()
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+        
+    return templates.TemplateResponse(request=request, name="detail.html", context={"recipe": recipe})
+
+@router.post("/recipes/{id}/delete")
+async def delete_recipe(id: int, db: Session = Depends(get_db)):
+    recipe = db.query(Recipe).filter(Recipe.id == id).first()
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+        
+    db.delete(recipe)
+    db.commit()
+    return RedirectResponse(url="/browse", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.get("/about", response_class=HTMLResponse)
 async def about(request: Request):
