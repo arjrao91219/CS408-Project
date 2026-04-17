@@ -5,7 +5,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Recipe
+from app.models import Comment, Recipe
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -84,6 +84,30 @@ async def recipe_detail(request: Request, id: int, db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="Recipe not found")
         
     return templates.TemplateResponse(request=request, name="detail.html", context={"recipe": recipe})
+
+@router.post("/recipes/{id}/comments")
+async def create_comment(
+    id: int,
+    name: str = Form(...),
+    comment_text: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    recipe = db.query(Recipe).filter(Recipe.id == id).first()
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    comment = Comment(
+        recipe_id=recipe.id,
+        name=name.strip(),
+        comment_text=comment_text.strip(),
+    )
+    db.add(comment)
+    db.commit()
+
+    return RedirectResponse(
+        url=f"/recipes/{recipe.id}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
 
 @router.post("/recipes/{id}/delete")
 async def delete_recipe(id: int, db: Session = Depends(get_db)):

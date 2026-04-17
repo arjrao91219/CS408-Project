@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.database import Base, get_db
 from app.main import app
-from app.models import Recipe
+from app.models import Comment, Recipe
 
 @pytest.fixture
 def client(tmp_path):
@@ -136,6 +136,73 @@ def test_delete_recipe(client):
         assert recipe_check is None
     finally:
         db.close()
+
+def test_create_comment(client):
+    db = client.testing_session_factory()
+    try:
+        recipe = Recipe(
+            title="Comment Target",
+            author="Chris",
+            description="Recipe for comment creation",
+            ingredients="Flour\nWater",
+            steps="Mix\nBake",
+        )
+        db.add(recipe)
+        db.commit()
+        db.refresh(recipe)
+        recipe_id = recipe.id
+    finally:
+        db.close()
+
+    response = client.post(
+        f"/recipes/{recipe_id}/comments",
+        data={"name": "Ahmad", "comment_text": "Great recipe. I added extra garlic."},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 303
+    assert response.headers["location"] == f"/recipes/{recipe_id}"
+
+    db = client.testing_session_factory()
+    try:
+        comments = db.query(Comment).filter(Comment.recipe_id == recipe_id).all()
+        assert len(comments) == 1
+        assert comments[0].name == "Ahmad"
+        assert comments[0].comment_text == "Great recipe. I added extra garlic."
+    finally:
+        db.close()
+
+def test_recipe_detail_displays_comments(client):
+    db = client.testing_session_factory()
+    try:
+        recipe = Recipe(
+            title="Comment Display Recipe",
+            author="Ahmad",
+            description="Recipe with comments",
+            ingredients="Tomatoes\nSalt",
+            steps="Cook slowly",
+        )
+        db.add(recipe)
+        db.commit()
+        db.refresh(recipe)
+
+        db.add(
+            Comment(
+                recipe_id=recipe.id,
+                name="Chris",
+                comment_text="I used smoked paprika and it turned out better.",
+            )
+        )
+        db.commit()
+        recipe_id = recipe.id
+    finally:
+        db.close()
+
+    response = client.get(f"/recipes/{recipe_id}")
+    assert response.status_code == 200
+    assert "Comments & Tips" in response.text
+    assert "Chris" in response.text
+    assert "I used smoked paprika and it turned out better." in response.text
 
 def test_about_page(client):
     response = client.get("/about")

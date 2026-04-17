@@ -11,6 +11,9 @@
     .nav-link { color: rgba(255,255,255,.7) !important; font-size: .85rem; text-transform: uppercase; }
     footer.bg-light p, footer.bg-light .text-muted { color: rgba(255,255,255,.4) !important; }
     .section-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: var(--cream); }
+    .comment-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(245,158,11,0.12); border-radius: 18px; }
+    .comment-meta { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
+    .comment-body { color: rgba(255,255,255,0.78); line-height: 1.75; white-space: pre-wrap; }
 </style>
 
 <div class="row justify-content-center">
@@ -55,6 +58,47 @@
                 <h4 class="font-monospace text-warning mb-3" style="font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase;">Preparation Steps</h4>
                 <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
                     <div style="color: rgba(255,255,255,0.8); line-height: 1.8; white-space: pre-wrap;">{{ recipe.steps }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-5 mt-2">
+            <div class="col-lg-7">
+                <h4 class="font-monospace text-warning mb-3" style="font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase;">Comments & Tips</h4>
+
+                {% if recipe.comments %}
+                    <div class="d-grid gap-3">
+                        {% for comment in recipe.comments|sort(attribute='created_at', reverse=True) %}
+                        <div class="comment-card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                <strong style="color: var(--cream);">{{ comment.name if comment.name else "Anonymous" }}</strong>
+                                <span class="comment-meta">{{ comment.created_at.strftime('%Y-%m-%d %I:%M %p') if comment.created_at else "Just now" }}</span>
+                            </div>
+                            <div class="comment-body">{{ comment.comment_text }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-4 rounded-4 comment-card">
+                        <p class="mb-0" style="color: rgba(255,255,255,0.55);">No comments yet. Be the first to leave a tip for this recipe.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-5">
+                <h4 class="font-monospace text-warning mb-3" style="font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase;">Leave a Comment</h4>
+                <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(245,158,11,0.12);">
+                    <form method="POST" action="/recipes/{{ recipe.id }}/comments">
+                        <div class="mb-3">
+                            <label for="comment-name" class="form-label">Your Name</label>
+                            <input id="comment-name" name="name" type="text" class="form-control dark-input" placeholder="e.g. Ahmad" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="comment-text" class="form-label">Tip or Comment</label>
+                            <textarea id="comment-text" name="comment_text" class="form-control dark-input" rows="5" placeholder="Share an improvement, substitution, or serving suggestion." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary-hero w-100">Post Comment</button>
+                    </form>
                 </div>
             </div>
         </div>
