@@ -5,3 +5,6 @@ jinja2
 sqlalchemy
 httpx
 python-multipart
+psycopg2-binary
+gunicorn
+python-dotenv
