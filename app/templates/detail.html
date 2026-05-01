@@ -91,11 +91,11 @@
                     <form method="POST" action="/recipes/{{ recipe.id }}/comments">
                         <div class="mb-3">
                             <label for="comment-name" class="form-label">Your Name</label>
-                            <input id="comment-name" name="name" type="text" class="form-control dark-input" placeholder="e.g. Ahmad" required>
+                            <input id="comment-name" name="name" type="text" class="form-control dark-input" maxlength="80" placeholder="e.g. Ahmad" required>
                         </div>
                         <div class="mb-4">
                             <label for="comment-text" class="form-label">Tip or Comment</label>
-                            <textarea id="comment-text" name="comment_text" class="form-control dark-input" rows="5" placeholder="Share an improvement, substitution, or serving suggestion." required></textarea>
+                            <textarea id="comment-text" name="comment_text" class="form-control dark-input" rows="5" maxlength="1000" placeholder="Share an improvement, substitution, or serving suggestion." required></textarea>
                         </div>
                         <button type="submit" class="btn-primary-hero w-100">Post Comment</button>
                     </form>

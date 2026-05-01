@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Form, Request, status, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -9,6 +11,13 @@ from app.models import Comment, Recipe
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
+
+
+def require_nonblank(value: str, field_name: str) -> str:
+    cleaned = value.strip()
+    if not cleaned:
+        raise HTTPException(status_code=422, detail=f"{field_name} cannot be blank")
+    return cleaned
 
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -56,20 +65,20 @@ async def add_recipe(request: Request):
 
 @router.post("/add")
 async def create_recipe(
-    title: str = Form(...),
-    author: str = Form(...),
-    description: str = Form(""),
-    ingredients: str = Form(...),
-    steps: str = Form(...),
-    tags: str = Form(""),
+    title: Annotated[str, Form(min_length=1, max_length=120)],
+    author: Annotated[str, Form(min_length=1, max_length=80)],
+    description: Annotated[str, Form(max_length=500)] = "",
+    ingredients: Annotated[str, Form(min_length=1, max_length=4000)] = "",
+    steps: Annotated[str, Form(min_length=1, max_length=6000)] = "",
+    tags: Annotated[str, Form(max_length=200)] = "",
     db: Session = Depends(get_db),
 ):
     recipe = Recipe(
-        title=title.strip(),
-        author=author.strip(),
+        title=require_nonblank(title, "Title"),
+        author=require_nonblank(author, "Author"),
         description=description.strip(),
-        ingredients=ingredients.strip(),
-        steps=steps.strip(),
+        ingredients=require_nonblank(ingredients, "Ingredients"),
+        steps=require_nonblank(steps, "Steps"),
         tags=tags.strip(),
     )
     db.add(recipe)
@@ -88,8 +97,8 @@ async def recipe_detail(request: Request, id: int, db: Session = Depends(get_db)
 @router.post("/recipes/{id}/comments")
 async def create_comment(
     id: int,
-    name: str = Form(...),
-    comment_text: str = Form(...),
+    name: Annotated[str, Form(min_length=1, max_length=80)],
+    comment_text: Annotated[str, Form(min_length=1, max_length=1000)],
     db: Session = Depends(get_db),
 ):
     recipe = db.query(Recipe).filter(Recipe.id == id).first()
@@ -98,8 +107,8 @@ async def create_comment(
 
     comment = Comment(
         recipe_id=recipe.id,
-        name=name.strip(),
-        comment_text=comment_text.strip(),
+        name=require_nonblank(name, "Name"),
+        comment_text=require_nonblank(comment_text, "Comment"),
     )
     db.add(comment)
     db.commit()

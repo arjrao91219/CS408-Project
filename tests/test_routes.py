@@ -74,6 +74,22 @@ def test_create_recipe(client):
     finally:
         db.close()
 
+def test_create_recipe_rejects_blank_title(client):
+    response = client.post(
+        "/add",
+        data={
+            "title": "   ",
+            "author": "Ahmad",
+            "description": "Should fail",
+            "ingredients": "Noodles",
+            "steps": "Cook",
+            "tags": "quick",
+        },
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 422
+
 def test_recipe_detail_page(client):
     # First inject a recipe
     db = client.testing_session_factory()
@@ -171,6 +187,30 @@ def test_create_comment(client):
         assert comments[0].comment_text == "Great recipe. I added extra garlic."
     finally:
         db.close()
+
+def test_create_comment_rejects_too_long_text(client):
+    db = client.testing_session_factory()
+    try:
+        recipe = Recipe(
+            title="Comment Length Target",
+            author="Chris",
+            ingredients="Flour",
+            steps="Bake",
+        )
+        db.add(recipe)
+        db.commit()
+        db.refresh(recipe)
+        recipe_id = recipe.id
+    finally:
+        db.close()
+
+    response = client.post(
+        f"/recipes/{recipe_id}/comments",
+        data={"name": "Ahmad", "comment_text": "x" * 1001},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 422
 
 def test_recipe_detail_displays_comments(client):
     db = client.testing_session_factory()

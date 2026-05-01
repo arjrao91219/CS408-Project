@@ -1,37 +1,116 @@
-## Technology Stack
+## RecipeShare
 
-### Backend
-* **Runtime:** Python 3.12
-* **Framework:** FastAPI
-* **Web Server:** Uvicorn (ASGI server)
-* **Database:** *[TBD - SQLite hosted by EC2?]*
+Collaborative Recipe Sharing Platform for CS 408.
 
-### Frontend
-* **Templates/UI:** Jinja2
-* **Styling:** Bootstrap 5
+### Stack
 
-### Testing & DevOps
-* **Testing Framework:** pytest
-* **CI/CD:** GitHub Actions
+- Python 3.12+
+- FastAPI
+- Jinja2 templates
+- SQLAlchemy
+- SQLite for local development
+- PostgreSQL for EC2 deployment
+- Pytest
 
----
+### Project Layout
 
-## Team Workflow
+- `app/main.py`: FastAPI app setup and error handling
+- `app/database.py`: database configuration and session management
+- `app/models.py`: SQLAlchemy models for recipes and comments
+- `app/routers/pages.py`: page routes, create/list/detail/delete/comment flows
+- `app/templates/`: Jinja templates
+- `scripts/setup_ec2.sh`: base EC2 system setup
+- `scripts/configure_app.sh`: app, service, and Nginx configuration
+- `tests/`: route and smoke tests
 
-**Team Members:** amdrao9121, christopherhasti
+### Local Setup
 
-### Workflow Strategy: Single Repository with Collaborators
-We have adopted a collaborative feature-branch workflow to ensure code quality and stability in the `main` branch.
+From the project root:
 
-1. **Access Control:**
-   * Both team members have Write access to the repository.
-   * Direct commits to the `main` branch are restricted; all changes must pass through a Pull Request (PR).
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-2. **Branching Convention:**
-   * Development work is done on isolated branches created for specific tasks.
-   * **Naming convention:** `category/description` (e.g., `feature/auth-login`, `fix/ci-pipeline`, `docs/update-readme`).
+### Run Locally
 
-3. **Merge Requirements:**
-   * **Pull Requests:** When a feature is complete, a Pull Request is opened against `main`.
-   * **Continuous Integration:** Merging is blocked until the CI pipeline (running `pytest`) passes successfully.
-   * **Code Review:** At least one review/approval from a teammate is required before merging.
+Start the app with:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Open:
+
+- `http://127.0.0.1:8000/`
+- `http://127.0.0.1:8000/browse`
+- `http://127.0.0.1:8000/add`
+
+### Local Database
+
+Local development uses SQLite by default:
+
+- file: `recipes.db`
+
+No extra setup is required. Tables are created automatically on app startup.
+
+### Environment Variables
+
+Optional environment variables:
+
+```bash
+DATABASE_URL=postgresql://user:password@host/dbname
+PORT=8000
+```
+
+If `DATABASE_URL` is not set, the app falls back to local SQLite.
+
+### Run Tests
+
+Run the full test suite with:
+
+```bash
+pytest
+```
+
+The tests use an isolated temporary SQLite database and do not depend on your local `recipes.db` contents.
+
+### Features Implemented
+
+- Home, Browse, Add Recipe, Detail, About pages
+- Shared layout with navigation and footer
+- Create recipe
+- List and filter recipes
+- View a recipe by ID
+- Delete recipes from browse and detail pages
+- Add and display recipe comments
+- Custom 404 page for missing recipes
+
+### Deployment on EC2
+
+The repository includes two deployment scripts:
+
+- `scripts/setup_ec2.sh`
+  - installs Python, PostgreSQL, and Nginx
+  - creates the PostgreSQL user and database
+- `scripts/configure_app.sh`
+  - creates a virtual environment
+  - installs dependencies
+  - writes the `.env`
+  - initializes database tables
+  - configures Gunicorn + Uvicorn systemd service
+  - configures Nginx reverse proxy
+
+Typical deployment flow:
+
+```bash
+sudo bash scripts/setup_ec2.sh
+bash scripts/configure_app.sh
+```
+
+### Notes
+
+- User input is server-side constrained with basic length validation.
+- Jinja autoescaping is used for template rendering.
+- Comments are tied to a specific recipe through a foreign key relationship.
